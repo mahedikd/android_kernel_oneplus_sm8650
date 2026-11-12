@@ -19,6 +19,7 @@ config KSU_KERNEL_UMOUNT
 config SUSFS
 	bool "SUSFS (SU Hide File System) support"
 	depends on KSU=y
+	depends on BOOT_CONFIG
 	default y
 	help
 	  SUSFS is a KernelSU Next extension that hides root access from apps
