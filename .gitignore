@@ -178,3 +178,5 @@ sphinx_*/
 abi_gki_protected_exports
 all_kmi_symbols
 /KernelSU-Next
+/build.log
+/build
