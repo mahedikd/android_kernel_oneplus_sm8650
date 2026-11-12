@@ -31,6 +31,27 @@ susfs_guard_lkm-y := \
 # includes are public, so -I$(srctree)/fs is enough to reach it.
 ccflags-y += -I$(srctree)/fs
 
+# The SUSFS sources carry private copies of three KernelSU helper groups
+# (lsm_hook, patch_memory, symbol_resolver). As a loadable module those names
+# were local to the .ko; built into the image they collide with KernelSU's own
+# globals. Rename the SUSFS copies in this directory's translation units only;
+# KernelSU's objects are compiled separately and keep their names. The
+# ksu_lsm_hook macro also renames the same-named struct tag, which is
+# consistent because SUSFS TUs include only their own lsm_hook.h.
+ccflags-y += \
+	-Dksu_lsm_hook=susfs_ksu_lsm_hook \
+	-Dksu_lsm_unhook=susfs_ksu_lsm_unhook \
+	-Dksu_register_lsm_hook=susfs_ksu_register_lsm_hook \
+	-Dksu_unregister_lsm_hook=susfs_ksu_unregister_lsm_hook \
+	-Dksu_lsm_hook_init=susfs_ksu_lsm_hook_init \
+	-Dksu_lsm_hook_exit=susfs_ksu_lsm_hook_exit \
+	-Dksu_patch_text=susfs_ksu_patch_text \
+	-Dphys_from_virt=susfs_phys_from_virt \
+	-Dscan_call_to=susfs_scan_call_to \
+	-Dfind_kernel_symbol_exact=susfs_find_kernel_symbol_exact \
+	-Dksu_init_symbol_resolver=susfs_ksu_init_symbol_resolver \
+	-Dksu_resolve_symbol_for_functable_hook=susfs_ksu_resolve_symbol_for_functable_hook
+
 # SUSFS sources use older C constructs and cast symbol addresses to
 # function pointers - match the upstream build flags.
 ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat \
