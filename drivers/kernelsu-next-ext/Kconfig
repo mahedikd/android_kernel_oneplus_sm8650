@@ -1,0 +1,33 @@
+config KSU_KERNEL_UMOUNT
+	bool "KernelSU kernel umount (nomount) support"
+	depends on KSU
+	default y
+	help
+	  Unmount mounts that KernelSU registered (for example module overlays)
+	  when a process transitions to an untrusted app UID.  This is the
+	  KernelSU Next "nomount" behaviour and keeps root-hiding tools such
+	  as SUSFS from seeing stale mount points.
+
+	  Note: because the nomount call sites live inside the KernelSU-Next
+	  tree (drivers/kernelsu/hook/setuid_hook.c), this Kconfig knob is
+	  declarative here - the init call is not gated without modifying
+	  KernelSU-Next.  The runtime flag ksu_kernel_umount_enabled still
+	  controls behaviour (defaults to on).
+
+	  Say Y unless you manage mounts yourself.
+
+config SUSFS
+	bool "SUSFS (SU Hide File System) support"
+	depends on KSU && MODULES
+	default n
+	help
+	  SUSFS is a KernelSU Next extension that hides root access from apps
+	  by virtualising paths, mounts, uname, kstat and other kernel
+	  interfaces.
+
+	  This builds a separate loadable module (susfs_guard_lkm.ko) that is
+	  loaded by the KernelSU manager at runtime.  It queries KernelSU's
+	  ksu_uid_should_umount through kallsyms, so CONFIG_KALLSYMS_ALL
+	  should be enabled for the umount gate to take effect.
+
+	  Say N if you do not need root hiding.

@@ -1,0 +1,44 @@
+# SUSFS - separate loadable module (susfs_guard_lkm.ko)
+# Sources live in the symlinked drivers/kernelsu/susfs/ (KernelSU-Next tree,
+# kept clean - no modifications there).
+obj-m += susfs_guard_lkm.o
+
+susfs_guard_lkm-objs := \
+	../kernelsu/susfs/susfs_main.o \
+	../kernelsu/susfs/patch_memory.o \
+	../kernelsu/susfs/symbol_resolver.o \
+	../kernelsu/susfs/lsm_hook.o \
+	../kernelsu/susfs/susfs_uname.o \
+	../kernelsu/susfs/susfs_kstat.o \
+	../kernelsu/susfs/sus_map.o \
+	../kernelsu/susfs/sus_path.o \
+	../kernelsu/susfs/sus_mount.o \
+	../kernelsu/susfs/spoof_cmdline.o \
+	../kernelsu/susfs/susfs_open_redirect.o \
+	../kernelsu/susfs/susfs_enable_log.o \
+	../kernelsu/susfs/susfs_avc_spoof.o \
+	../kernelsu/susfs/susfs_supercall.o \
+	../kernelsu/susfs/susfs_hide_syms.o \
+	../kernelsu/susfs/imports_guard.o \
+	../kernelsu/susfs/ksu_umount_gate.o \
+	../kernelsu/susfs/susfs_fp_hook.o \
+	../kernelsu/susfs/susfs_opath.o
+
+# Needs fs/mount.h (struct mount / real_mount): the private header's own
+# includes are public, so -I$(srctree)/fs is enough to reach it.
+ccflags-y += -I$(srctree)/fs
+
+# SUSFS sources use older C constructs and cast symbol addresses to
+# function pointers - match the upstream build flags.
+ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat \
+	-Wno-missing-prototypes -Wno-declaration-after-statement \
+	-Wno-unused-function -Wno-unused-variable
+
+# 6.1 dropped __flush_dcache_area in favour of dcache_clean_inval_poc.
+KSU_HAS_OLD_DCACHE := $(shell grep -l __flush_dcache_area \
+	$(srctree)/arch/arm64/include/asm/cacheflush.h 2>/dev/null)
+ifeq ($(KSU_HAS_OLD_DCACHE),)
+ccflags-y += -DKSU_NEW_DCACHE_FLUSH=1
+else
+ccflags-y += -DKSU_NEW_DCACHE_FLUSH=0
+endif
