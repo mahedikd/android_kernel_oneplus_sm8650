@@ -1,9 +1,12 @@
-# SUSFS - separate loadable module (susfs_guard_lkm.ko)
+# SUSFS - built into the kernel image (no loadable module)
 # Sources live in the symlinked drivers/kernelsu/susfs/ (KernelSU-Next tree,
 # kept clean - no modifications there).
-obj-m += susfs_guard_lkm.o
+#
+# Keep the group name susfs_guard_lkm: KBUILD_MODNAME drives the built-in
+# module_param sysfs path, and susfs_hide_syms hides /sys/module/susfs_guard_lkm.
+obj-y += susfs_guard_lkm.o
 
-susfs_guard_lkm-objs := \
+susfs_guard_lkm-y := \
 	../kernelsu/susfs/susfs_main.o \
 	../kernelsu/susfs/patch_memory.o \
 	../kernelsu/susfs/symbol_resolver.o \

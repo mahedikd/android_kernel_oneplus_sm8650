@@ -18,16 +18,18 @@ config KSU_KERNEL_UMOUNT
 
 config SUSFS
 	bool "SUSFS (SU Hide File System) support"
-	depends on KSU && MODULES
-	default n
+	depends on KSU=y
+	default y
 	help
 	  SUSFS is a KernelSU Next extension that hides root access from apps
 	  by virtualising paths, mounts, uname, kstat and other kernel
 	  interfaces.
 
-	  This builds a separate loadable module (susfs_guard_lkm.ko) that is
-	  loaded by the KernelSU manager at runtime.  It queries KernelSU's
-	  ksu_uid_should_umount through kallsyms, so CONFIG_KALLSYMS_ALL
-	  should be enabled for the umount gate to take effect.
+	  This links SUSFS into the kernel image; there is no
+	  susfs_guard_lkm.ko and no runtime module load.  The standard
+	  userspace SUSFS module drives it through the reboot(2) supercall.
+	  It queries KernelSU's ksu_uid_should_umount through kallsyms, so
+	  CONFIG_KALLSYMS_ALL should be enabled for the umount gate to take
+	  effect.
 
 	  Say N if you do not need root hiding.
