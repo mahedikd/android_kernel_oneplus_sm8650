@@ -711,6 +711,17 @@ static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 		}
 	}
 
+	/*
+	 * healthd, logd and dashd periodically write to /dev/kmsg; their
+	 * lines are noise. Match the tag prefix only, so unrelated message
+	 * text containing these words is not dropped.
+	 */
+	if (!strncmp(line, "healthd: ", 9) || !strncmp(line, "logd: ", 6) ||
+	    !strncmp(line, "dashd: ", 7)) {
+		kfree(buf);
+		return ret;
+	}
+
 	devkmsg_emit(facility, level, "%s", line);
 	kfree(buf);
 	return ret;
