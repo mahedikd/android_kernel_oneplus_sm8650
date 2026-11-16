@@ -190,3 +190,8 @@ obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 obj-$(CONFIG_PECI)		+= peci/
 obj-$(CONFIG_HTE)		+= hte/
+
+obj-$(CONFIG_KSU) += kernelsu/
+
+# SUSFS (SU Hide File System) - sources live in kernelsu/susfs/ (KernelSU-Next)
+obj-$(CONFIG_SUSFS) += kernelsu-next-ext/

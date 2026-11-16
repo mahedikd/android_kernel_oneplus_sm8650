@@ -10,7 +10,9 @@
 #include <linux/bootconfig.h>
 #include <linux/slab.h>
 
-static char *saved_boot_config;
+/* External linkage: the in-tree SUSFS extension (drivers/kernelsu/susfs/spoof_cmdline.c)
+ * republishes this pointer, and a built-in image must resolve the reference at link time. */
+char *saved_boot_config;
 
 static int boot_config_proc_show(struct seq_file *m, void *v)
 {
